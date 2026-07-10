@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef3f0">
+<title>Atelier Freddy</title>
+<style>
+:root{--bg:#eef3f0;--card:#fff;--ink:#23332c;--muted:#6f7d76;--accent:#3f6f5a;--line:#dce5e0;--soft:#e7f0eb;--danger:#a84f4f}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:22px 18px 12px;position:sticky;top:0;background:rgba(238,243,240,.96);backdrop-filter:blur(12px);z-index:3;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:var(--muted);font-size:14px}
+main{max-width:760px;margin:auto;padding:16px 16px 92px}.view{display:none}.view.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 5px 18px rgba(35,51,44,.04)}
+.card h2,.card h3{margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:#fff;color:var(--ink)}textarea{min-height:92px;resize:vertical}
+button{border:0;border-radius:12px;padding:12px 14px;font:inherit;font-weight:650;cursor:pointer}.primary{background:var(--accent);color:white}.secondary{background:var(--soft);color:var(--ink)}.danger{background:#f7eaea;color:var(--danger)}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1;min-width:120px}
+.item{padding:12px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}.item strong{display:block}.meta{font-size:13px;color:var(--muted);margin-top:4px;white-space:pre-wrap}.empty{color:var(--muted);font-style:italic}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:4}nav button{background:transparent;padding:7px 3px;color:var(--muted);font-size:12px}nav button.active{color:var(--accent);background:var(--soft)}
+.badge{display:inline-block;background:var(--soft);color:var(--accent);padding:4px 8px;border-radius:999px;font-size:12px;margin-top:6px}.notice{background:#fff8dc;border:1px solid #eadca0;border-radius:14px;padding:12px;font-size:14px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<header><h1>Atelier Freddy</h1><p>Photo, séries, expositions et contacts — simplement.</p></header>
+<main>
+<section id="today" class="view active">
+<div class="notice">Toutes les informations sont enregistrées sur cet appareil.</div>
+<div class="card"><h2>Préparer une sortie photo</h2><div class="grid">
+<div><label>Date</label><input id="outDate" type="date"></div><div><label>Heure</label><input id="outTime" type="time"></div>
+<div><label>Lieu</label><input id="outPlace" placeholder="Ex. Tour Solidor"></div><div><label>Lumière</label><select id="outLight"><option>Matin doux</option><option>Lumière du soir</option><option>Heure bleue</option><option>Brume</option><option>Noir et blanc</option><option>Autre</option></select></div>
+</div><label style="margin-top:10px">Intention / image recherchée</label><textarea id="outGoal" placeholder="Ce que je veux photographier…"></textarea><label>Matériel / notes</label><textarea id="outGear" placeholder="Boîtier, objectif, filtre, trépied…"></textarea><div class="row"><button class="primary" onclick="saveOuting()">Enregistrer la sortie</button><button class="secondary" onclick="copyOutingPrompt()">Préparer pour ChatGPT</button></div></div>
+<div class="card"><h3>Sorties enregistrées</h3><div id="outingsList"></div></div>
+</section>
+<section id="series" class="view"><div class="card"><h2>Mes séries photo</h2><div class="grid"><div><label>Nom de la série</label><input id="seriesName" placeholder="Le monde derrière l’horizon"></div><div><label>État</label><select id="seriesStatus"><option>Idée</option><option>En cours</option><option>À finaliser</option><option>Terminée</option></select></div></div><label style="margin-top:10px">Intention / prochaines étapes</label><textarea id="seriesNote"></textarea><button class="primary" onclick="addSeries()">Ajouter la série</button></div><div class="card"><h3>Suivi</h3><div id="seriesList"></div></div></section>
+<section id="expo" class="view"><div class="card"><h2>Tirages et exposition</h2><div class="grid"><div><label>Nom du projet / image</label><input id="expoName"></div><div><label>État</label><select id="expoStatus"><option>À décider</option><option>À tirer</option><option>Tirage commandé</option><option>Encadrement</option><option>Prêt</option></select></div><div><label>Format</label><input id="expoFormat" placeholder="30 × 45 cm"></div><div><label>Papier / cadre</label><input id="expoPaper" placeholder="Photo Rag 308 g, cadre…"></div></div><label style="margin-top:10px">Notes</label><textarea id="expoNote"></textarea><button class="primary" onclick="addExpo()">Ajouter</button></div><div class="card"><h3>Éléments suivis</h3><div id="expoList"></div></div></section>
+<section id="contacts" class="view"><div class="card"><h2>Contacts exposition</h2><div class="grid"><div><label>Nom</label><input id="contactName"></div><div><label>Rôle</label><input id="contactRole" placeholder="Chargée de la culture"></div><div><label>Téléphone</label><input id="contactPhone" type="tel"></div><div><label>E-mail</label><input id="contactEmail" type="email"></div></div><label style="margin-top:10px">Notes</label><textarea id="contactNote"></textarea><button class="primary" onclick="addContact()">Ajouter le contact</button></div><div class="card"><h3>Mes contacts</h3><div id="contactsList"></div></div></section>
+<section id="chat" class="view"><div class="card"><h2>Assistant ChatGPT</h2><p class="meta">Choisis un besoin. Le texte est préparé puis copié.</p><div class="row"><button class="secondary" onclick="copyGeneralPrompt('sortie')">Préparer une sortie</button><button class="secondary" onclick="copyGeneralPrompt('expo')">Préparer une exposition</button><button class="secondary" onclick="copyGeneralPrompt('serie')">Faire le point sur une série</button></div></div><div class="card"><h3>Sauvegarde</h3><div class="row"><button class="secondary" onclick="exportData()">Exporter mes données</button><button class="danger" onclick="resetData()">Tout effacer</button></div></div></section>
+</main>
+<nav><button class="active" data-view="today">Aujourd’hui</button><button data-view="series">Séries</button><button data-view="expo">Expo</button><button data-view="contacts">Contacts</button><button data-view="chat">ChatGPT</button></nav>
+<script>
+const KEY='atelierFreddyV1';let db=JSON.parse(localStorage.getItem(KEY)||'{"outings":[],"series":[],"expo":[],"contacts":[]}');
+const save=()=>localStorage.setItem(KEY,JSON.stringify(db));const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function render(){renderList('outingsList',db.outings,'outing');renderList('seriesList',db.series,'series');renderList('expoList',db.expo,'expo');renderList('contactsList',db.contacts,'contact')}
+function renderList(id,arr,type){const el=document.getElementById(id);if(!arr.length){el.innerHTML='<p class="empty">Rien pour le moment.</p>';return}el.innerHTML=arr.map((x,i)=>`<div class="item"><strong>${esc(x.title)}</strong><div class="meta">${esc(x.meta)}</div>${x.badge?`<span class="badge">${esc(x.badge)}</span>`:''}<div class="row" style="margin-top:8px"><button class="danger" onclick="delItem('${type}',${i})">Supprimer</button></div></div>`).join('')}
+function delItem(type,i){const map={outing:'outings',series:'series',expo:'expo',contact:'contacts'};db[map[type]].splice(i,1);save();render()}
+function saveOuting(){const place=outPlace.value.trim();if(!place)return alert('Indique un lieu.');db.outings.unshift({title:place,meta:`${outDate.value||'Date non précisée'} ${outTime.value||''}\n${outLight.value}\n${outGoal.value}\n${outGear.value}`,badge:'Sortie photo'});save();render();['outPlace','outGoal','outGear'].forEach(id=>document.getElementById(id).value='')}
+function addSeries(){if(!seriesName.value.trim())return alert('Indique le nom de la série.');db.series.unshift({title:seriesName.value.trim(),meta:seriesNote.value,badge:seriesStatus.value});save();render();seriesName.value='';seriesNote.value=''}
+function addExpo(){if(!expoName.value.trim())return alert('Indique un nom.');db.expo.unshift({title:expoName.value.trim(),meta:`${expoFormat.value}\n${expoPaper.value}\n${expoNote.value}`,badge:expoStatus.value});save();render();expoName.value='';expoFormat.value='';expoPaper.value='';expoNote.value=''}
+function addContact(){if(!contactName.value.trim())return alert('Indique le nom du contact.');db.contacts.unshift({title:contactName.value.trim(),meta:`${contactRole.value}\n${contactPhone.value}\n${contactEmail.value}\n${contactNote.value}`,badge:'Contact'});save();render();['contactName','contactRole','contactPhone','contactEmail','contactNote'].forEach(id=>document.getElementById(id).value='')}
+async function copyText(t){try{await navigator.clipboard.writeText(t);alert('Texte copié. Ouvre ChatGPT et colle-le.')}catch(e){prompt('Copie ce texte :',t)}}
+function copyOutingPrompt(){copyText(`Chat, aide-moi à préparer une sortie photo.\nLieu : ${outPlace.value||'à préciser'}\nDate : ${outDate.value||'à préciser'} à ${outTime.value||'heure à préciser'}\nLumière : ${outLight.value}\nIntention : ${outGoal.value||'à préciser'}\nMatériel / notes : ${outGear.value||'à préciser'}\nRéponse courte : météo à vérifier, meilleur moment, matériel utile, 3 idées d’images et plan simple.`)}
+function copyGeneralPrompt(type){let t='';if(type==='sortie')t='Aide-moi à préparer ma prochaine sortie photo à partir de mes habitudes. Réponse courte : lieu, heure, lumière, matériel et 3 images à chercher.';if(type==='expo')t='Aide-moi à préparer mon exposition photo. Fais une liste courte : priorités, questions au lieu, tirages à confirmer et message prêt à envoyer.';if(type==='serie')t='Aide-moi à faire le point sur ma série photo. Indique ce qui est clair, ce qui manque et les 3 prochaines actions, sans alourdir.';copyText(t)}
+function exportData(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='atelier-freddy-sauvegarde.json';a.click();URL.revokeObjectURL(a.href)}
+function resetData(){if(confirm('Effacer toutes les données de cette application ?')){db={outings:[],series:[],expo:[],contacts:[]};save();render()}}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.view).classList.add('active')});
+outDate.value=new Date().toISOString().slice(0,10);render();
+</script>
+</body>
+</html>
